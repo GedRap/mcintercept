@@ -1,0 +1,19 @@
+{
+  "regexps": [
+    {
+      "re": "^hello",
+      "name": "hello"
+    },
+    {
+      "re": "world[0-9]+$",
+      "name": "world"
+    }
+  ],
+  "interface": "lo0",
+  "port": 11211,
+  "output": {
+    "stdout": {
+      "enabled": true
+    }
+  }
+}
