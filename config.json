@@ -1,5 +1,5 @@
 {
-  "regexps": [
+  "patterns": [
     {
       "re": "^hello",
       "name": "hello"
