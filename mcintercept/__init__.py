@@ -11,6 +11,8 @@ def main_loop(interface, port):
             continue
 
         pkt = pkt.rstrip()
-        memcached_key = memcached.extract_memcached_key(pkt)
-        if memcached_key is not None:
-            print "Access to memcached key %s detected!" % memcached_key
+        memcached_data = memcached.extract_memcached_cmd_and_key(pkt)
+        if memcached_data is not None:
+            print "Access to memcached key {key} using {cmd} detected!".format(
+                cmd=memcached_data[0], key=memcached_data[1]
+            )

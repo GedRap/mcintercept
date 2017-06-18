@@ -8,7 +8,7 @@ _memcached_commands = [
 ]
 
 
-def extract_memcached_key(data):
+def extract_memcached_cmd_and_key(data):
     if data is None:
         return None
 
@@ -22,4 +22,4 @@ def extract_memcached_key(data):
     if (len(tokens) < 2) or (tokens[0].lower() not in _memcached_commands):
         return None
 
-    return tokens[1]
+    return tokens[0], tokens[1]
