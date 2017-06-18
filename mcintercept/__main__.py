@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from . import main_loop
+from mcintercept import main_loop
 
 
 def main(argv={}):
