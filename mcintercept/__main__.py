@@ -6,7 +6,7 @@ from mcintercept import main_loop
 
 def main(argv={}):
     try:
-        main_loop(argv['interface'], argv['port'])
+        main_loop(argv['interface'], argv['port'], argv['config'])
     except KeyboardInterrupt:
         sys.exit('Interrupted by user')
 
@@ -14,12 +14,15 @@ def main(argv={}):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--interface", type=str, help="network interface to listen to", required=True)
+    parser.add_argument("-c", "--config", type=str, help="path to config file", required=True)
+
     parser.add_argument("-p", "--port", type=int, help="memcached port", default=11211)
     args = parser.parse_args()
 
     main(
         {
             "interface": args.interface,
-            "port": args.port
+            "port": args.port,
+            "config": args.config
         }
     )
