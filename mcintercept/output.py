@@ -1,5 +1,6 @@
 import json
 
+import statsd
 
 class OutputHandler(object):
     def process(self, command, key, matched_patterns):
@@ -13,9 +14,43 @@ class StdoutHandler(OutputHandler):
         )
 
 
+class StatsdHandler(OutputHandler):
+    def __init__(self, **kwargs):
+        self.config = {
+            "host": kwargs["host"],
+            "port": kwargs["port"],
+            "prefix": kwargs.get("prefix")
+        }
+
+        self.client = statsd.StatsClient(self.config["host"], self.config["port"])
+
+    def generate_key_prefix(self, command):
+        statsd_key = ""
+
+        if self.config["prefix"] is not None:
+            statsd_key = self.config["prefix"] + "."
+
+        statsd_key += command
+
+        return statsd_key
+
+    def process(self, command, key, matched_patterns):
+        prefix = self.generate_key_prefix(command)
+        print "Got prefix: " + prefix
+
+        statsd_keys = list()
+        for pattern in matched_patterns:
+            statsd_keys.append(prefix + "." + pattern)
+
+        for statsd_key in statsd_keys:
+            print "Incrementing " + statsd_key
+            self.client.incr(statsd_key)
+
+
 class OutputContainer(object):
     handlers_map = {
-        "stdout": StdoutHandler
+        "stdout": StdoutHandler,
+        "statsd": StatsdHandler
     }
 
     def __init__(self):
