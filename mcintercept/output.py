@@ -1,6 +1,9 @@
 import json
+import logging
+import sys
 
 import statsd
+
 
 class OutputHandler(object):
     def process(self, command, key, matched_patterns):
@@ -8,10 +11,22 @@ class OutputHandler(object):
 
 
 class StdoutHandler(OutputHandler):
+    def __init__(self, **kwargs):
+        self.logger = logging.getLogger('mcintercept')
+        self.logger.setLevel(logging.INFO)
+        self.logger.propagate = 0
+
+        logging_handler = logging.StreamHandler(sys.stdout)
+        logging_handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('[%(asctime)s] %(message)s')
+        logging_handler.setFormatter(formatter)
+
+        self.logger.addHandler(logging_handler)
+
     def process(self, command, key, matched_patterns):
-        print "command={cmd}, key={key}, patterns={patterns}".format(
+        self.logger.info("command={cmd}, key={key}, patterns={patterns}".format(
             cmd=command, key=key, patterns=matched_patterns
-        )
+        ))
 
 
 class StatsdHandler(OutputHandler):
@@ -36,14 +51,12 @@ class StatsdHandler(OutputHandler):
 
     def process(self, command, key, matched_patterns):
         prefix = self.generate_key_prefix(command)
-        print "Got prefix: " + prefix
 
         statsd_keys = list()
         for pattern in matched_patterns:
             statsd_keys.append(prefix + "." + pattern)
 
         for statsd_key in statsd_keys:
-            print "Incrementing " + statsd_key
             self.client.incr(statsd_key)
 
 
