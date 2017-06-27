@@ -27,9 +27,26 @@ class Capture(object):
             yield packet_data
 
     def extract_data_from_packet(self, packet):
-        loopback = dpkt.loopback.Loopback(packet)
-        ip = loopback.data
-        tcp = ip.data
-        content = tcp.data
+        # depending on interface and OS, we have either Ethernet or Loopback packet
+        # so we will try both and see which it actually is
+        if self._attempt_ethernet(packet) is not None:
+            return self._attempt_ethernet(packet)
 
-        return content
+        if self._attempt_loopback(packet) is not None:
+            return self._attempt_loopback(packet)
+
+        return None
+
+    def _attempt_ethernet(self, data):
+        # this happens on Ubuntu, including when listening on loopback
+        eth = dpkt.ethernet.Ethernet(data)
+        if isinstance(eth.data, dpkt.ip.IP):
+            return eth.data.data.data
+        return None
+
+    def _attempt_loopback(self, data):
+        # this happens when listening on loopback on MacOS
+        loopback = dpkt.loopback.Loopback(data)
+        if isinstance(loopback.data, dpkt.ip.IP):
+            return loopback.data.data.data
+        return None
