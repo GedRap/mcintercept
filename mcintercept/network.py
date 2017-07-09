@@ -8,16 +8,20 @@ class Capture(object):
         self.interface = interface
         self.port = port
 
-        self.sniffer = pcap.pcap(name=self.interface, timeout_ms=500)
-        self.sniffer.setfilter("tcp dst port %d and (tcp[tcpflags] & tcp-push != 0)" % self.port)
-
+        self.sniffer = None
         self.should_stop = False
 
     def stop(self):
         self.should_stop = True
 
     def capture(self):
+        if self.sniffer is None:
+            self.sniffer = pcap.pcap(name=self.interface, timeout_ms=500)
+            self.sniffer.setfilter("tcp dst port %d and (tcp[tcpflags] & tcp-push != 0)" % self.port)
+
         for capture in self.sniffer:
+            if self.should_stop:
+                break
             if capture is None:
                 continue
 
