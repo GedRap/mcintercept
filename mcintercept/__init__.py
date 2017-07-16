@@ -20,11 +20,12 @@ def main_loop(interface, port, config_file):
         memcached_data = memcached.extract_memcached_cmd_and_key(pkt)
         if memcached_data is not None:
             memcached_cmd = memcached_data[0]
-            memcached_key = memcached_data[1]
-            logging.debug("Access to memcached key {key} using {cmd} detected!".format(
-                cmd=memcached_cmd, key=memcached_key
-            ))
+            memcached_keys = memcached_data[1]
+            for memcached_key in memcached_keys:
+                logging.debug("Access to memcached key {key} using {cmd} detected!".format(
+                    cmd=memcached_cmd, key=memcached_key
+                ))
 
-            matching_patterns = patterns_container.find_matching_names(memcached_key)
-            if len(matching_patterns) > 0:
-                output_container.process(memcached_cmd, memcached_key, matching_patterns)
+                matching_patterns = patterns_container.find_matching_names(memcached_key)
+                if len(matching_patterns) > 0:
+                    output_container.process(memcached_cmd, memcached_key, matching_patterns)

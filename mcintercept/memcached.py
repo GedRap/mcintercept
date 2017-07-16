@@ -7,6 +7,10 @@ _memcached_commands = [
     "get", "set", "add", "replace", "append", "prepend", "incr", "decr"
 ]
 
+_memcached_multikey_commands = [
+    "get"
+]
+
 
 def extract_memcached_cmd_and_key(data):
     if data is None:
@@ -22,4 +26,10 @@ def extract_memcached_cmd_and_key(data):
     if (len(tokens) < 2) or (tokens[0].lower() not in _memcached_commands):
         return None
 
-    return tokens[0], tokens[1]
+    cmd = tokens[0]
+    if cmd in _memcached_multikey_commands:
+        keys = tokens[1:]
+    else:
+        keys = [tokens[1]]
+
+    return cmd, keys
